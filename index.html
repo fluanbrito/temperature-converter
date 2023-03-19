@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Conversor de Temperatura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Calibri, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            margin-top: 50px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            width: 900px;
+            height: 900px;
+        }
+
+        h1 {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2e2e2e;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            margin-bottom: 20px;
+            padding: 5px;
+            border-radius: 5px;
+            border: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 250px;
+            font-size: 18px;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 18px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0062cc;
+            cursor: pointer;
+        }
+
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #2e2e2e;
+            text-align: center;
+        }
+
+        .chart-container {
+            margin-top: 50px;
+            position: relative;
+            margin: 0 auto;
+            text-align: center;
+            width: 700px;
+            height: 700px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Conversor de Temperatura</h1>
+        <form>
+            <label for="temp">Graus Celsius:</label>
+            <input type="number" id="temp" placeholder="Digite a temperatura">
+            <button type="submit" class="btn btn-primary">Converter</button>
+        </form>
+        <div id="result"></div>
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+   
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@2.9.3/dist/umd/popper.min.js"
+        integrity="sha384-EWEiVpTZRfBnHqvPnJhONvb7V1ZM6cQ7n3q3l+vyr7gbPnE6YlYwscg+WpPnR6U9"
+        crossorigin="anonymous"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script>
+        // Função para converter Celsius para Fahrenheit
+        function celsiusToFahrenheit(celsius) {
+            return (celsius * 9 / 5) + 32;
+        }
+        // Função para converter Celsius para Kelvin
+        function celsiusToKelvin(celsius) {
+            return celsius + 273.15;
+        }
+
+        // Selecione o formulário e adicione um ouvinte de eventos
+        document.querySelector('form').addEventListener('submit', function (e) {
+            // Previne o envio do formulário
+            e.preventDefault();
+            // Seleciona o input de temperatura e o valor digitado
+            var input = document.querySelector('#temp');
+            var celsius = parseFloat(input.value);
+            // Se o valor digitado for válido, realiza as conversões
+            if (!isNaN(celsius)) {
+                var fahrenheit = celsiusToFahrenheit(celsius);
+                var kelvin = celsiusToKelvin(celsius);
+                // Exibe o resultado das conversões
+                document.querySelector('#result').innerHTML = celsius + '°C = ' + fahrenheit.toFixed(2) + '°F = ' + kelvin.toFixed(2) + 'K';
+                // Atualiza o gráfico de temperatura
+                updateChart(celsius, fahrenheit, kelvin);
+            }
+            // Limpa o input de temperatura
+            input.value = '';
+        });
+
+        // Cria um novo gráfico de temperatura
+        function createChart() {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Celsius', 'Fahrenheit', 'Kelvin'],
+                    datasets: [{
+                        label: 'Temperatura',
+                        data: [0, 0, 0],
+                        backgroundColor: ['#007bff', '#dc3545', '#ffc107']
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+            return chart;
+        }
+
+        // Variável global para armazenar o gráfico de temperatura
+        var chart = createChart();
+
+        // Atualiza o gráfico de temperatura
+        function updateChart(celsius, fahrenheit, kelvin) {
+            chart.data.datasets[0].data = [celsius.toFixed(2), fahrenheit.toFixed(2), kelvin.toFixed(2)];
+            chart.update();
+        }
+    </script>
+</body>
+
+</html>
